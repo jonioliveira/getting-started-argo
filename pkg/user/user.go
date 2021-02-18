@@ -1,7 +1,14 @@
 package user
 
 import (
+	"fmt"
 	"net/http"
+	"time"
+
+	"github.com/jonioliveira/getting-started-argo/pkg/logger"
+	"github.com/schollz/progressbar/v3"
+
+	err "github.com/jonioliveira/getting-started-argo/pkg/error"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,11 +29,21 @@ func AddUserRoutesV1(rg *gin.RouterGroup) {
 func getUserHandler(ctx *gin.Context) {
 	user := ctx.Params.ByName("name")
 	value, ok := db[user]
+	// fake database access
+	bar := progressbar.Default(100)
+	for i := 0; i < 100; i++ {
+		_ = bar.Add(1)
+		time.Sleep(5 * time.Millisecond)
+	}
+
 	if ok {
 		ctx.JSON(http.StatusOK, gin.H{"user": user, "value": value})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"user": user, "status": "no value"})
+
+	e := err.NewErrDetails(err.ErrItemNotFound, fmt.Sprintf("Could not find user with name: %s", user))
+	logger.Error(e.Error())
+	ctx.JSON(http.StatusNotFound, gin.H{"message": e.Error()})
 }
 
 func postUserHandler(ctx *gin.Context) {

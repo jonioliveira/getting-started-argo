@@ -72,7 +72,7 @@ shell-go-fix:
 # Build the go binary.
 .PHONY: shell-go-build
 shell-go-build:
-	go build ${GO_LDFLAGS} -o bin/getting-started-argo cmd/getting-started-argo/main.go
+	CGO_ENABLED=0 go build ${GO_LDFLAGS} -o bin/getting-started-argo cmd/getting-started-argo/main.go
 
 # Run tests.
 .PHONY: shell-go-test
